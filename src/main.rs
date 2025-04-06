@@ -1,4 +1,5 @@
 mod cache;
+mod forest;
 mod pack;
 mod repo;
 mod upath;
