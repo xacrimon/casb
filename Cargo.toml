@@ -5,3 +5,8 @@ edition = "2024"
 
 [dependencies]
 rusqlite = { version = "0.34.0", features = ["bundled"] }
+serde = { version =  "1.0.219", features = ["derive"] }
+serde_cbor = "0.11.2"
+blake3 = { version = "1.8.1", features = ["serde"] }
+zstd = "0.13.3"
+uuid = { version = "1.16.0", features = ["v4", "serde"] }
