@@ -1,8 +1,20 @@
+use std::collections::{BTreeMap, BTreeSet};
+use std::io::Read;
 use std::mem;
+use std::num::{NonZero, NonZeroUsize};
 
+use blake3::Hash;
+use fastcdc::v2020;
 use serde::{Deserialize, Serialize};
 
-use crate::repo::{BlobKind, IndexBlobInfo, IndexPackInfo, Key, PackInfo, PackInfoEntry};
+use crate::repo::{
+    BlobKind, IndexBlobInfo, IndexPackInfo, Key, Node, PackInfo, PackInfoEntry, Tree,
+};
+use crate::upath::UPath;
+
+const CHUNK_MIN_SIZE: u32 = 512 * 1024;
+const CHUNK_AVG_SIZE: u32 = 1024 * 1024;
+const CHUNK_MAX_SIZE: u32 = 2 * 1024 * 1024;
 
 const PACK_SIZE_MIN: usize = 4 * 1024 * 1024;
 const PACK_SIZE_TARGET: usize = 8 * 1024 * 1024;
@@ -46,15 +58,27 @@ impl Packer {
         let mut ies = Vec::new();
 
         for blob in &self.entries {
+            let length = match blob.size_compressed {
+                Some(size) => size.get(),
+                None => blob.size_uncompressed,
+            };
+
+            let length_uncompressed = if blob.size_compressed.is_some() {
+                let size_uncompressed = NonZeroUsize::new(blob.size_uncompressed).unwrap();
+                Some(size_uncompressed)
+            } else {
+                None
+            };
+
             let ib = IndexBlobInfo {
                 id: blob.id,
                 kind: blob.kind,
                 offset: cursor,
-                length: blob.size_compressed,
-                length_uncompressed: blob.size_uncompressed,
+                length,
+                length_uncompressed,
             };
 
-            cursor += blob.size_compressed;
+            cursor += length;
             ies.push(ib)
         }
 
@@ -78,5 +102,66 @@ impl Packer {
 
         self.size = 0;
         (index, data)
+    }
+}
+
+pub fn split_to_dat_blobs(data: &mut dyn Read) -> impl Iterator<Item = (PackInfoEntry, Box<[u8]>)> {
+    v2020::StreamCDC::new(data, CHUNK_MIN_SIZE, CHUNK_AVG_SIZE, CHUNK_MAX_SIZE).map(|chunk| {
+        let chunk = chunk.unwrap();
+
+        let id = blake3::hash(&chunk.data);
+        let compressed =
+            zstd::bulk::compress(&chunk.data, zstd::DEFAULT_COMPRESSION_LEVEL).unwrap();
+
+        let size_compressed = NonZeroUsize::new(compressed.len()).unwrap();
+
+        let entry = PackInfoEntry {
+            id,
+            kind: BlobKind::Data,
+            size_uncompressed: chunk.data.len(),
+            size_compressed: Some(size_compressed),
+        };
+
+        (entry, compressed.into_boxed_slice())
+    })
+}
+
+pub struct Forest {
+    open: BTreeMap<UPath, Tree>,
+    closed: BTreeSet<UPath>,
+}
+
+impl Forest {
+    pub fn new() -> Self {
+        Self {
+            open: BTreeMap::new(),
+            closed: BTreeSet::new(),
+        }
+    }
+
+    pub fn add_node(&mut self, absolute_tree: &UPath, node: Node) {
+        let tree = self
+            .open
+            .entry(absolute_tree.clone())
+            .or_insert_with(|| Tree {
+                nodes: BTreeSet::new(),
+            });
+
+        tree.nodes.insert(node);
+    }
+
+    pub fn finish_tree(&mut self, absolute_tree: &UPath) -> Tree {
+        let (absolute_tree, tree) = self.open.remove_entry(&absolute_tree).unwrap();
+        if self.closed.insert(absolute_tree) {
+            panic!()
+        }
+
+        tree
+    }
+
+    pub fn finish(&self) {
+        if !self.open.is_empty() {
+            panic!()
+        }
     }
 }
