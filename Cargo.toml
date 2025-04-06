@@ -7,7 +7,7 @@ rust-version = "1.85.1"
 license = "GPL-3.0"
 repository = "https://github.com/xacrimon/rustic"
 homepage = "https://github.com/xacrimon/rustic" 
-description = "Backup, now at reasonable speed."
+description = "Backup, now with reasonable performance."
 readme = "README.md"
 
 [dependencies]
