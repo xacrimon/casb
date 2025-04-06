@@ -1,32 +1,21 @@
-use std::sync::Mutex;
+use std::sync::LazyLock;
 
-use rusqlite::{Connection, Result};
+use rusqlite::Connection;
+
+const CACHE_PATH: &str = "cache.dat";
+const CACHE_SCHEMA: &str = include_str!("../cache.sql");
+
+static CACHE_VERSION: LazyLock<String> =
+    LazyLock::new(|| blake3::hash(CACHE_SCHEMA.as_bytes()).to_hex().to_string());
 
 pub struct Cache {
-    conn: Mutex<Connection>,
+    conn: Connection,
 }
 
 impl Cache {
-    pub fn new(db_path: &str) -> Result<Self> {
-        let conn = Connection::open(db_path)?;
-        conn.execute(
-            "CREATE TABLE IF NOT EXISTS cache (
-                key TEXT PRIMARY KEY,
-                value TEXT NOT NULL
-            )",
-            [],
-        )?;
-        Ok(Cache {
-            conn: Mutex::new(conn),
-        })
-    }
-
-    pub fn set(&self, key: &str, value: &str) -> Result<()> {
-        let conn = self.conn.lock().unwrap();
-        conn.execute(
-            "INSERT OR REPLACE INTO cache (key, value) VALUES (?1, ?2)",
-            &[key, value],
-        )?;
-        Ok(())
+    pub fn new() -> Self {
+        let conn = Connection::open(CACHE_PATH).unwrap();
+        conn.execute(CACHE_SCHEMA, []).unwrap();
+        Self { conn }
     }
 }
