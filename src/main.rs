@@ -1,4 +1,4 @@
-mod r;
+mod repo;
 mod upath;
 
 fn main() {
