@@ -18,10 +18,10 @@ pub struct PackInfoEntry {
     pub id: blake3::Hash,
     #[serde(rename = "k")]
     pub kind: BlobKind,
-    #[serde(rename = "u")]
-    pub size_uncompressed: usize,
-    #[serde(rename = "c", skip_serializing_if = "Option::is_none")]
-    pub size_compressed: Option<NonZeroUsize>,
+    #[serde(rename = "c")]
+    pub size_compressed: usize,
+    #[serde(rename = "u", skip_serializing_if = "Option::is_none")]
+    pub size_uncompressed: Option<NonZeroUsize>,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -163,14 +163,8 @@ pub enum Kdf {
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct Key {
-    pub mac: Mac,
+    pub mac: [u8; 32],
     pub encrypt: [u8; 32],
-}
-
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub struct Mac {
-    pub k: [u8; 16],
-    pub r: [u8; 16],
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

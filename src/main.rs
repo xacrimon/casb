@@ -1,4 +1,5 @@
 mod cache;
+mod pack;
 mod repo;
 mod upath;
 
@@ -24,6 +25,8 @@ fn main() {
         .filter(None, Level::Debug.to_level_filter())
         .format_timestamp_millis()
         .init();
+
+    debug!("and we're alive!");
 
     for _ in 0..args.count {
         println!("Hello {}!", args.name);
