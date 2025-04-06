@@ -20,3 +20,5 @@ zstd = "0.13.3"
 uuid = { version = "1.16.0", features = ["v4", "serde"] }
 getrandom = "0.3.2"
 clap = { version = "4.5.35", features = ["derive"] }
+log = "0.4.27"
+env_logger = { version = "0.11.8", default-features = false, features = ["auto-color", "humantime", "color"] }
