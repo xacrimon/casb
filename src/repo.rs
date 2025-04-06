@@ -1,4 +1,5 @@
 use std::num::NonZeroUsize;
+use std::collections::BTreeSet;
 
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -49,7 +50,7 @@ impl From<i32> for BlobKind {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Tree {
-    pub nodes: Vec<Node>,
+    pub nodes: BTreeSet<Node>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -65,6 +66,26 @@ pub struct Node {
     pub inode: u64,
     #[serde(flatten)]
     pub kind: NodeKind,
+}
+
+impl PartialEq for Node {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
+
+impl Eq for Node {}
+
+impl PartialOrd for Node {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.name.partial_cmp(&other.name)
+    }
+}
+
+impl Ord for Node {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.name.cmp(&other.name)
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
