@@ -4,7 +4,7 @@ use std::num::NonZeroUsize;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::upath::UPath;
+use crate::useg::{UPath, USeg};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(transparent)]
@@ -55,7 +55,7 @@ pub struct Tree {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Node {
-    pub name: UPath,
+    pub name: USeg,
     pub mode: u32,
     pub mtime: i64,
     pub atime: i64,

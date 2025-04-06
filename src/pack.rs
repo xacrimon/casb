@@ -10,7 +10,6 @@ use serde::{Deserialize, Serialize};
 use crate::repo::{
     BlobKind, IndexBlobInfo, IndexPackInfo, Key, Node, PackInfo, PackInfoEntry, Tree,
 };
-use crate::upath::UPath;
 
 const CHUNK_MIN_SIZE: u32 = 512 * 1024;
 const CHUNK_AVG_SIZE: u32 = 1024 * 1024;
