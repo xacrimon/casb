@@ -1,12 +1,20 @@
 [package]
 name = "rustic"
 version = "0.1.0"
+authors = ["Joel Wejdenstål <joel.wejdenstal@gmail.com"]
 edition = "2024"
+rust-version = "1.85.1"
+license = "GPL-3.0"
+repository = "https://github.com/xacrimon/rustic"
+homepage = "https://github.com/xacrimon/rustic" 
+description = "Backup, now at reasonable speed."
+readme = "README.md"
 
 [dependencies]
 rusqlite = { version = "0.34.0", features = ["bundled", "blob"] }
 serde = { version =  "1.0.219", features = ["derive"] }
 serde_cbor = "0.11.2"
+toml = "0.8.20"
 blake3 = { version = "1.8.1", features = ["serde"] }
 zstd = "0.13.3"
 uuid = { version = "1.16.0", features = ["v4", "serde"] }
