@@ -30,6 +30,7 @@ pub struct PackInfoEntry {
 pub enum BlobKind {
     Tree = 1,
     Data = 2,
+    DataZstd3 = 3,
 }
 
 impl From<BlobKind> for i32 {
@@ -43,6 +44,7 @@ impl From<i32> for BlobKind {
         match value {
             v if v == BlobKind::Tree as i32 => BlobKind::Tree,
             v if v == BlobKind::Data as i32 => BlobKind::Data,
+            v if v == BlobKind::DataZstd3 as i32 => BlobKind::DataZstd3,
             _ => panic!(),
         }
     }

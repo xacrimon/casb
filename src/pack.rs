@@ -15,6 +15,8 @@ const CHUNK_MIN_SIZE: u32 = 512 * 1024;
 const CHUNK_AVG_SIZE: u32 = 1024 * 1024;
 const CHUNK_MAX_SIZE: u32 = 2 * 1024 * 1024;
 
+const BLOB_COMPRESSION_THRESHOLD: usize = 100;
+
 const PACK_SIZE_MIN: usize = 4 * 1024 * 1024;
 const PACK_SIZE_TARGET: usize = 8 * 1024 * 1024;
 const PACK_SIZE_MAX: usize = 16 * 1024 * 1024;
@@ -95,7 +97,7 @@ impl Packer {
             .extend_from_slice(&(header_len as u32).to_le_bytes());
 
         let data = mem::take(&mut self.buffer).into_boxed_slice();
-        let id = blake3::hash(&self.buffer);
+        let id = blake3::hash(&data);
 
         let index = IndexPackInfo { id, blobs: ies };
 
@@ -104,23 +106,37 @@ impl Packer {
     }
 }
 
-pub fn split_to_dat_blobs(data: &mut dyn Read) -> impl Iterator<Item = (PackInfoEntry, Box<[u8]>)> {
+pub fn split_to_data_blobs(
+    data: &mut dyn Read,
+) -> impl Iterator<Item = (PackInfoEntry, Box<[u8]>)> {
     v2020::StreamCDC::new(data, CHUNK_MIN_SIZE, CHUNK_AVG_SIZE, CHUNK_MAX_SIZE).map(|chunk| {
         let chunk = chunk.unwrap();
-
         let id = blake3::hash(&chunk.data);
-        let compressed =
-            zstd::bulk::compress(&chunk.data, zstd::DEFAULT_COMPRESSION_LEVEL).unwrap();
 
-        let size_compressed = NonZeroUsize::new(compressed.len()).unwrap();
+        let (kind, size_compressed, data) = if chunk.data.len() < BLOB_COMPRESSION_THRESHOLD {
+            (BlobKind::Data, None, chunk.data)
+        } else {
+            let compressed =
+                zstd::bulk::compress(&chunk.data, zstd::DEFAULT_COMPRESSION_LEVEL).unwrap();
+
+            if compressed.len() < chunk.data.len() {
+                (
+                    BlobKind::DataZstd3,
+                    Some(NonZeroUsize::new(compressed.len()).unwrap()),
+                    compressed,
+                )
+            } else {
+                (BlobKind::Data, None, chunk.data)
+            }
+        };
 
         let entry = PackInfoEntry {
             id,
-            kind: BlobKind::Data,
-            size_uncompressed: chunk.data.len(),
-            size_compressed: Some(size_compressed),
+            kind,
+            size_uncompressed: data.len(),
+            size_compressed,
         };
 
-        (entry, compressed.into_boxed_slice())
+        (entry, data.into_boxed_slice())
     })
 }
