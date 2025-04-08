@@ -116,7 +116,7 @@ fn run_backup(path: &Path, repo: &Path) {
     }
 
     for (_path, tree) in trees.into_iter().rev() {
-        let data = serde_cbor::to_vec(&tree).unwrap();
+        let data = rmp_serde::to_vec(&tree).unwrap();
         let id = blake3::hash(&data).into();
         let entry = PackInfoEntry {
             id,
@@ -134,7 +134,7 @@ fn run_backup(path: &Path, repo: &Path) {
     finish_pack(&mut file_packer, &mut index, &key, &data_path);
     finish_pack(&mut tree_packer, &mut index, &key, &tree_path);
 
-    let index_data = serde_cbor::to_vec(&index).unwrap();
+    let index_data = rmp_serde::to_vec(&index).unwrap();
     let index_id = blake3::hash(&index_data);
     let index_path = index_path.join(format!("{}.index", index_id));
     fs::write(index_path, index_data).unwrap();

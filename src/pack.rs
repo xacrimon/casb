@@ -83,7 +83,7 @@ impl Packer {
             blobs: mem::take(&mut self.entries),
         };
 
-        let header = serde_cbor::to_vec(&info).unwrap();
+        let header = rmp_serde::to_vec(&info).unwrap();
         let header_len = (header.len() as u32).to_le_bytes();
 
         self.buffer.extend_from_slice(&header);
