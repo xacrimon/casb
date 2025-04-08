@@ -66,10 +66,7 @@ fn run_backup(path: &Path, repo: &Path) {
     fs::create_dir_all(&tree_path).unwrap();
     fs::create_dir_all(&index_path).unwrap();
 
-    let key = Key {
-        mac: [0; 32],
-        encrypt: [0; 32],
-    };
+    let key = Key { bytes: [0; 32] };
 
     let mut index = Index {
         supersedes: Vec::new(),

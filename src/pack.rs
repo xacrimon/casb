@@ -8,7 +8,7 @@ use fastcdc::v2020;
 use serde::{Deserialize, Serialize};
 
 use crate::repo::{
-    BlobKind, IndexBlobInfo, IndexPackInfo, Key, Node, PackInfo, PackInfoEntry, Tree,
+    self, BlobKind, IndexBlobInfo, IndexPackInfo, Key, Node, PackInfo, PackInfoEntry, Tree,
 };
 
 const CHUNK_MIN_SIZE: u32 = 512 * 1024;
@@ -88,13 +88,10 @@ impl Packer {
         };
 
         let header = serde_cbor::to_vec(&info).unwrap();
-        let mac = blake3::keyed_hash(&key.mac, &header);
-        let header_len = header.len() + blake3::OUT_LEN;
+        let header_len = (header.len() as u32).to_le_bytes();
 
         self.buffer.extend_from_slice(&header);
-        self.buffer.extend_from_slice(mac.as_bytes());
-        self.buffer
-            .extend_from_slice(&(header_len as u32).to_le_bytes());
+        self.buffer.extend_from_slice(&header_len);
 
         let data = mem::take(&mut self.buffer).into_boxed_slice();
         let id = blake3::hash(&data).into();

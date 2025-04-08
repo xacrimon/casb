@@ -166,8 +166,7 @@ pub enum Kdf {
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct Key {
-    pub mac: [u8; 32],
-    pub encrypt: [u8; 32],
+    pub bytes: [u8; 32],
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
