@@ -6,7 +6,9 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct UPath {
+    #[serde(with = "serde_bytes")]
     buffer: Box<[u8]>,
+    #[serde(with = "serde_bytes")]
     splits: Box<[u8]>,
 }
 
@@ -49,6 +51,7 @@ impl UPath {
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct USeg {
+    #[serde(with = "serde_bytes")]
     raw: Box<[u8]>,
 }
 

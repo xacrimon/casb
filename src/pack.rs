@@ -97,7 +97,7 @@ impl Packer {
             .extend_from_slice(&(header_len as u32).to_le_bytes());
 
         let data = mem::take(&mut self.buffer).into_boxed_slice();
-        let id = blake3::hash(&data);
+        let id = blake3::hash(&data).into();
 
         let index = IndexPackInfo { id, blobs: ies };
 
@@ -111,7 +111,7 @@ pub fn split_to_data_blobs(
 ) -> impl Iterator<Item = (PackInfoEntry, Box<[u8]>)> {
     v2020::StreamCDC::new(data, CHUNK_MIN_SIZE, CHUNK_AVG_SIZE, CHUNK_MAX_SIZE).map(|chunk| {
         let chunk = chunk.unwrap();
-        let id = blake3::hash(&chunk.data);
+        let id = blake3::hash(&chunk.data).into();
 
         let (kind, size_compressed, data) = if chunk.data.len() < BLOB_COMPRESSION_THRESHOLD {
             (BlobKind::Data, None, chunk.data)

@@ -119,7 +119,7 @@ fn run_backup(path: &Path, repo: &Path) {
 
     for (_path, tree) in trees.into_iter().rev() {
         let data = serde_cbor::to_vec(&tree).unwrap();
-        let id = blake3::hash(&data);
+        let id = blake3::hash(&data).into();
         let entry = PackInfoEntry {
             id,
             kind: BlobKind::Tree,
@@ -165,7 +165,7 @@ fn add_node(trees: &mut Vec<(UPath, Tree)>, kind: NodeKind, upath: &UPath) {
 
 fn finish_pack(packer: &mut Packer, index: &mut Index, key: &Key, to: &Path) {
     let (pack, data) = packer.finish(&key);
-    let pack_path = to.join(format!("{}.pack", pack.id));
+    let pack_path = to.join(format!("{}.pack", pack.id.to_hex()));
 
     debug!("writing pack {:?}", index);
 

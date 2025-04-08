@@ -6,6 +6,26 @@ use uuid::Uuid;
 
 use crate::useg::{UPath, USeg};
 
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct Hash {
+    #[serde(with = "serde_bytes")]
+    pub bytes: [u8; 32],
+}
+
+impl Hash {
+    pub fn to_hex(&self) -> String {
+        hex::encode(self.bytes)
+    }
+}
+
+impl From<blake3::Hash> for Hash {
+    fn from(value: blake3::Hash) -> Self {
+        Self {
+            bytes: *value.as_bytes(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct PackInfo {
@@ -15,7 +35,7 @@ pub struct PackInfo {
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct PackInfoEntry {
     #[serde(rename = "i")]
-    pub id: blake3::Hash,
+    pub id: Hash,
     #[serde(rename = "k")]
     pub kind: BlobKind,
     #[serde(rename = "u")]
@@ -93,8 +113,8 @@ impl Ord for Node {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum NodeKind {
-    File { content: Vec<blake3::Hash> },
-    Dir { subtree: blake3::Hash },
+    File { content: Vec<Hash> },
+    Dir { subtree: Hash },
     Symlink { link_target: UPath, links: u64 },
 }
 
@@ -121,19 +141,19 @@ impl From<i32> for UnpackedEncoding {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Index {
-    pub supersedes: Vec<blake3::Hash>,
+    pub supersedes: Vec<Hash>,
     pub packs: Vec<IndexPackInfo>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IndexPackInfo {
-    pub id: blake3::Hash,
+    pub id: Hash,
     pub blobs: Vec<IndexBlobInfo>,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct IndexBlobInfo {
-    pub id: blake3::Hash,
+    pub id: Hash,
     pub kind: BlobKind,
     pub offset: usize,
     pub length: usize,
@@ -172,7 +192,7 @@ pub struct Key {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Snapshot {
     pub time: i64,
-    pub tree: blake3::Hash,
+    pub tree: Hash,
     pub paths: Vec<UPath>,
     pub hostname: String,
     pub username: String,
@@ -180,7 +200,7 @@ pub struct Snapshot {
     pub gid: u32,
     pub tags: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub original: Option<blake3::Hash>,
+    pub original: Option<Hash>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
