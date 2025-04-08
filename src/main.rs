@@ -19,6 +19,9 @@ use walkdir::WalkDir;
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
+    #[command(flatten)]
+    verbose: clap_verbosity_flag::Verbosity,
+
     #[command(subcommand)]
     command: Command,
 }

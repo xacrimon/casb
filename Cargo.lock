@@ -176,6 +176,7 @@ dependencies = [
  "byteorder",
  "chacha20",
  "clap",
+ "clap-verbosity-flag",
  "env_logger",
  "getrandom 0.3.2",
  "hex",
@@ -237,6 +238,16 @@ checksum = "d8aa86934b44c19c50f87cc2790e19f54f7a67aedb64101c2e1a2e5ecfb73944"
 dependencies = [
  "clap_builder",
  "clap_derive",
+]
+
+[[package]]
+name = "clap-verbosity-flag"
+version = "3.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2678fade3b77aa3a8ff3aae87e9c008d3fb00473a41c71fbf74e91c8c7b37e84"
+dependencies = [
+ "clap",
+ "log",
 ]
 
 [[package]]
