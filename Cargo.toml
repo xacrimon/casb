@@ -25,27 +25,8 @@ env_logger = { version = "0.11.8", default-features = false, features = ["auto-c
 walkdir = "2.5.0"
 hex = "0.4.3"
 chacha20 = "0.9.1"
+rust-s3 = { version = "0.35.1", default-features = false, features = ["sync-native-tls"] }
 
 [dev-dependencies]
 byteorder = "1.4.3"
 md-5 = "0.10.6"
-
-[profile.ci]
-inherits = "dev"
-debug = "line-tables-only"
-incremental = false
-[profile.ci.package."*"]
-opt-level = 0
-[profile.ci.build-override]
-opt-level = 0
-
-[profile.dev.package."*"]
-opt-level = 1
-[profile.dev.build-override]
-opt-level = 1
-
-[profile.release]
-lto = "thin"
-codegen-units = 1
-[profile.release.package.clap_builder]
-opt-level = "s"

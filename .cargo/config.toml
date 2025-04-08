@@ -1,0 +1,19 @@
+[profile.ci]
+inherits = "dev"
+debug = "line-tables-only"
+incremental = false
+[profile.ci.package."*"]
+opt-level = 0
+[profile.ci.build-override]
+opt-level = 0
+
+[profile.dev.package."*"]
+opt-level = 1
+[profile.dev.build-override]
+opt-level = 1
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+[profile.release.package.clap_builder]
+opt-level = "s"
