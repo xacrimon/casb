@@ -81,7 +81,7 @@ impl Eq for Node {}
 
 impl PartialOrd for Node {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        self.name.partial_cmp(&other.name)
+        Some(self.name.cmp(&other.name))
     }
 }
 

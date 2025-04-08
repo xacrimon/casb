@@ -8,6 +8,7 @@ pub struct Hash {
 }
 
 impl Hash {
+    #[allow(clippy::wrong_self_convention)]
     pub fn to_hex(&self) -> String {
         hex::encode(self.bytes)
     }

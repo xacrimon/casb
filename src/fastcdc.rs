@@ -452,7 +452,7 @@ impl<'a> FastCDC<'a> {
     }
 }
 
-impl<'a> Iterator for FastCDC<'a> {
+impl Iterator for FastCDC<'_> {
     type Item = Chunk;
 
     fn next(&mut self) -> Option<Chunk> {
@@ -494,7 +494,7 @@ pub enum Error {
     /// End of source data reached.
     Empty,
     /// An I/O error occurred.
-    IoError(std::io::Error),
+    Io(std::io::Error),
     /// Something unexpected happened.
     Other(String),
 }
@@ -509,14 +509,14 @@ impl std::error::Error for Error {}
 
 impl From<std::io::Error> for Error {
     fn from(error: std::io::Error) -> Self {
-        Error::IoError(error)
+        Error::Io(error)
     }
 }
 
 impl From<Error> for std::io::Error {
     fn from(error: Error) -> Self {
         match error {
-            Error::IoError(ioerr) => ioerr,
+            Error::Io(ioerr) => ioerr,
             Error::Empty => Self::from(std::io::ErrorKind::UnexpectedEof),
             Error::Other(str) => Self::other(str),
         }

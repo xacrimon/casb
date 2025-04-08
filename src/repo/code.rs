@@ -66,7 +66,7 @@ pub fn unseal_blob(data: &[u8], key: &Key) -> Vec<u8> {
 
     let mut cipher = ChaCha12::new(&e_key.into(), &cipher_nonce.into());
 
-    let mac = blake3::keyed_hash(&a_key, &data);
+    let mac = blake3::keyed_hash(&a_key, data);
     if mac != data_mac {
         panic!();
     }
