@@ -15,9 +15,8 @@ jobs:
         run: cargo version
       - name: Install tools
         run: |
-          cargo install cargo-machete --locked --version "=0.8.0"
+          cargo install --profile ci cargo-machete --locked --version "=0.8.0"
       - name: Rustfmt
         run: cargo fmt --check
       - name: Clippy
-        run: cargo clippy --profile ci --all-targets
-#       run: cargo clippy --profile dev-ci --all --all-targets -- -D warnings
+        run: cargo clippy --profile ci --all --all-targets -- -D warnings
