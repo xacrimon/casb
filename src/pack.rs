@@ -87,7 +87,7 @@ impl Packer {
             blobs: mem::take(&mut self.entries),
         };
 
-        let header = serde_json::to_vec(&info).unwrap();
+        let header = serde_cbor::to_vec(&info).unwrap();
         let mac = blake3::keyed_hash(&key.mac, &header);
         let header_len = header.len() + blake3::OUT_LEN;
 
