@@ -4,27 +4,8 @@ use std::num::NonZeroUsize;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use crate::repo::Hash;
 use crate::useg::{UPath, USeg};
-
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub struct Hash {
-    #[serde(with = "serde_bytes")]
-    pub bytes: [u8; 32],
-}
-
-impl Hash {
-    pub fn to_hex(&self) -> String {
-        hex::encode(self.bytes)
-    }
-}
-
-impl From<blake3::Hash> for Hash {
-    fn from(value: blake3::Hash) -> Self {
-        Self {
-            bytes: *value.as_bytes(),
-        }
-    }
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(transparent)]
