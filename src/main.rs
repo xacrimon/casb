@@ -1,4 +1,5 @@
 mod cache;
+mod fastcdc;
 mod pack;
 mod repo;
 mod useg;
@@ -10,11 +11,11 @@ use std::path::{Path, PathBuf};
 use clap::{Parser, Subcommand};
 use log::{Level, debug};
 use pack::Packer;
-use repo::{BlobKind, Index, IndexPackInfo, Key, Node, NodeKind, PackInfoEntry, Tree};
+use repo::{BlobKind, Index, Key, Node, NodeKind, PackInfoEntry, Tree};
 use useg::{UPath, USeg};
 use walkdir::WalkDir;
 
-/// Backup, now with reasonable performance.
+/// Properly designed backup based on content addressable storage.
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
@@ -139,7 +140,7 @@ fn run_backup(path: &Path, repo: &Path) {
     fs::write(index_path, index_data).unwrap();
 }
 
-fn add_node(trees: &mut Vec<(UPath, Tree)>, kind: NodeKind, upath: &UPath) {
+fn add_node(trees: &mut [(UPath, Tree)], kind: NodeKind, upath: &UPath) {
     let node = Node {
         name: USeg::from_segment_bytes(upath.last_segment()),
         mode: 0,
@@ -161,7 +162,7 @@ fn add_node(trees: &mut Vec<(UPath, Tree)>, kind: NodeKind, upath: &UPath) {
 }
 
 fn finish_pack(packer: &mut Packer, index: &mut Index, key: &Key, to: &Path) {
-    let (pack, data) = packer.finish(&key);
+    let (pack, data) = packer.finish(key);
     let pack_path = to.join(format!("{}.pack", pack.id.to_hex()));
 
     debug!("writing pack {:?}", index);

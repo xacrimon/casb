@@ -1,13 +1,13 @@
 [package]
-name = "rustic"
+name = "casb"
 version = "0.1.0"
 authors = ["Joel Wejdenstål <joel.wejdenstal@gmail.com"]
 edition = "2024"
 rust-version = "1.85.1"
-license = "GPL-3.0"
-repository = "https://github.com/xacrimon/rustic"
-homepage = "https://github.com/xacrimon/rustic" 
-description = "Backup, now with reasonable performance."
+license = "Apache-2.0"
+repository = "https://github.com/xacrimon/casb"
+homepage = "https://github.com/xacrimon/casb" 
+description = "Properly designed backup based on content addressable storage."
 readme = "README.md"
 
 [dependencies]
@@ -15,7 +15,6 @@ rusqlite = { version = "0.34.0", features = ["bundled", "blob"] }
 serde = { version =  "1.0.219", features = ["derive"] }
 serde_cbor = "0.11.2"
 serde_bytes = "0.11.17"
-#toml = "0.8.20"
 blake3 = { version = "1.8.1", features = ["serde"] }
 zstd = "0.13.3"
 uuid = { version = "1.16.0", features = ["v4", "serde"] }
@@ -23,7 +22,31 @@ getrandom = "0.3.2"
 clap = { version = "4.5.35", features = ["derive"] }
 log = "0.4.27"
 env_logger = { version = "0.11.8", default-features = false, features = ["auto-color", "humantime", "color"] }
-fastcdc = "3.1.0"
 walkdir = "2.5.0"
 hex = "0.4.3"
 chacha20 = "0.9.1"
+md-5 = "0.10.6"
+
+# tune for fast iterative builds by reducing codesize and speeding up proc-macros
+[profile.dev.package."*"]
+opt-level = 1
+[profile.dev.build-override]
+opt-level = 1
+
+# tune for fast clean builds with all optimizations off
+[profile.ci]
+inherits = "dev"
+debug = "line-tables-only"
+incremental = false
+[profile.ci.package."*"]
+opt-level = 0
+[profile.ci.build-override]
+opt-level = 0
+
+# tune for runtime performance with thin lto, also reduce size of clap_builder for
+# which the last performance for opt-level = 3 doesn't make a useful difference
+[profile.release]
+lto = "thin"
+codegen-units = 1
+[profile.release.package.clap_builder]
+opt-level = "s"

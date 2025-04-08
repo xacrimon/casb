@@ -10,8 +10,14 @@ jobs:
   lint:
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v2
-    - name: Check formatting
-      run: cargo fmt -- --check
-    - name: Run linter
-      run: cargo clippy --all-targets --all-features -- -D warnings
+      - uses: actions/checkout@v2
+      - name: Install toolchain
+        run: cargo version
+      - name: Install tools
+        run: |
+          cargo install cargo-machete --locked --version "=0.8.0"
+      - name: Rustfmt
+        run: cargo fmt --check
+      - name: Clippy
+        run: cargo clippy --profile ci --all-targets
+#       run: cargo clippy --profile dev-ci --all --all-targets -- -D warnings

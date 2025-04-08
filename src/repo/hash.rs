@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct Hash {
     #[serde(with = "serde_bytes")]
@@ -14,9 +14,9 @@ impl Hash {
 }
 
 impl From<blake3::Hash> for Hash {
-    fn from(value: blake3::Hash) -> Self {
-        Self {
-            bytes: *value.as_bytes(),
+    fn from(hash: blake3::Hash) -> Self {
+        Hash {
+            bytes: *hash.as_bytes(),
         }
     }
 }

@@ -1,3 +1,0 @@
-# rustic
-
-Hello, World!

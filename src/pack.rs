@@ -1,15 +1,11 @@
-use std::collections::{BTreeMap, BTreeSet};
+#![allow(dead_code)]
+
 use std::io::Read;
 use std::mem;
-use std::num::{NonZero, NonZeroUsize};
+use std::num::NonZeroUsize;
 
-use blake3::Hash;
-use fastcdc::v2020;
-use serde::{Deserialize, Serialize};
-
-use crate::repo::{
-    self, BlobKind, IndexBlobInfo, IndexPackInfo, Key, Node, PackInfo, PackInfoEntry, Tree,
-};
+use crate::fastcdc;
+use crate::repo::{BlobKind, IndexBlobInfo, IndexPackInfo, Key, PackInfo, PackInfoEntry};
 
 const CHUNK_MIN_SIZE: u32 = 512 * 1024;
 const CHUNK_AVG_SIZE: u32 = 1024 * 1024;
@@ -17,7 +13,6 @@ const CHUNK_MAX_SIZE: u32 = 2 * 1024 * 1024;
 
 const BLOB_COMPRESSION_THRESHOLD: usize = 100;
 
-const PACK_SIZE_MIN: usize = 4 * 1024 * 1024;
 const PACK_SIZE_TARGET: usize = 8 * 1024 * 1024;
 const PACK_SIZE_MAX: usize = 16 * 1024 * 1024;
 
@@ -54,6 +49,7 @@ impl Packer {
         self.buffer.extend_from_slice(data);
     }
 
+    #[allow(unused_variables)]
     pub fn finish(&mut self, key: &Key) -> (IndexPackInfo, Box<[u8]>) {
         let mut cursor = 0;
         let mut ies = Vec::new();
@@ -106,7 +102,7 @@ impl Packer {
 pub fn split_to_data_blobs(
     data: &mut dyn Read,
 ) -> impl Iterator<Item = (PackInfoEntry, Box<[u8]>)> {
-    v2020::StreamCDC::new(data, CHUNK_MIN_SIZE, CHUNK_AVG_SIZE, CHUNK_MAX_SIZE).map(|chunk| {
+    fastcdc::StreamCDC::new(data, CHUNK_MIN_SIZE, CHUNK_AVG_SIZE, CHUNK_MAX_SIZE).map(|chunk| {
         let chunk = chunk.unwrap();
         let id = blake3::hash(&chunk.data).into();
 

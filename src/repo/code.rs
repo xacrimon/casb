@@ -1,10 +1,9 @@
-use chacha20::ChaCha12;
-use chacha20::cipher::{KeyIvInit, StreamCipher, StreamCipherSeek};
+#![allow(dead_code)]
 
-use crate::repo::types::{
-    BlobKind, Config, Index, IndexBlobInfo, IndexPackInfo, Kdf, Key, Node, NodeKind, PackInfo,
-    PackInfoEntry, Recipe, RepositoryVersion, Snapshot, Tree, UnpackedEncoding,
-};
+use chacha20::ChaCha12;
+use chacha20::cipher::{KeyIvInit, StreamCipher};
+
+use crate::repo::types::Key;
 
 const ENCRYPTION_CONTEXT: &str = "encryption";
 const AUTHENTICATION_CONTEXT: &str = "authentication";

@@ -69,12 +69,12 @@ impl Borrow<[u8]> for USeg {
 }
 
 fn normalize_osstr(s: &OsStr) -> &[u8] {
-    #[cfg(target_os = "unix")]
+    #[cfg(target_family = "unix")]
     {
         use std::os::unix::ffi::OsStrExt;
         s.as_bytes()
     }
 
-    #[cfg(not(target_os = "unix"))]
-    s.to_str().unwrap().as_bytes()
+    #[cfg(not(target_family = "unix"))]
+    s.to_str().expect("found bad byte in path").as_bytes()
 }
